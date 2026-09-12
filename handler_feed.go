@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,4 +50,21 @@ func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request)
 	}
 
 	respondWithJSON(w, 201, databaseFeedsToFeeds(feeds))
+}
+
+func (apiCfg *apiConfig) handlerGetPosts(w http.ResponseWriter, r *http.Request, user database.User) {
+	limit := 20
+	if r.URL.Query().Has("limit") {
+		l, err := strconv.Atoi(r.URL.Query().Get("limit"))
+		if err == nil && l > 0 {
+			limit = l
+		}
+	}
+	posts, err := apiCfg.DB.GetPosts(r.Context(), user.ID, limit)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Failed to get posts: %v", err))
+		return
+	}
+
+	respondWithJSON(w, 201, databasePostsToPosts(posts))
 }
