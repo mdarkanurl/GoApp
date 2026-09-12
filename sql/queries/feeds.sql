@@ -2,3 +2,6 @@
 INSERT INTO feeds (id, name, create_at, update_at, url, user_id)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
+
+-- name: GetFeeds :many
+SELECT * FROM feeds;
